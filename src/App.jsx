@@ -26,7 +26,7 @@ import EnrolledCourse from './pages/EnrolledCourse'
 import ViewLecture from './pages/ViewLecture'
 import SearchWithAi from './pages/SearchWithAi'
 import getAllReviews from './customHooks/getAllReviews'
-import StudentDashboard from './pages/dashboard'
+import StudentDashboard from './pages/dashboard.jsx'
 import CertificateManager from './pages/admin/CertificateManager'
 
 export const serverUrl = "http://localhost:8000"
