@@ -29,7 +29,7 @@ import getAllReviews from './customHooks/getAllReviews'
 import StudentDashboard from './pages/dashboard.jsx'
 import CertificateManager from './pages/admin/CertificateManager'
 
-export const serverUrl = "http://localhost:8000"
+export const serverUrl = "https://jagat-acadamy-api.vercel.app/"
 
 function App() {
   
