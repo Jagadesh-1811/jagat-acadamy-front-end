@@ -7,6 +7,7 @@ import { ClipLoader } from 'react-spinners';
 
 function QuizManager() {
     const { creatorCourseData } = useSelector((state) => state.course);
+    const { token } = useSelector(state => state.user);
     const [selectedCourse, setSelectedCourse] = useState('');
     const [quizzes, setQuizzes] = useState([]);
     const [quizLink, setQuizLink] = useState('');
@@ -21,12 +22,12 @@ function QuizManager() {
         if (selectedCourse) {
             fetchQuizzes(selectedCourse);
         }
-    }, [selectedCourse]);
+    }, [selectedCourse, token]);
 
     const fetchQuizzes = async (courseId) => {
         setLoading(true);
         try {
-            const { data } = await axios.get(`${serverUrl}/api/quiz/course/${courseId}`, { withCredentials: true });
+            const { data } = await axios.get(`${serverUrl}/api/quiz/course/${courseId}`, { headers: { Authorization: `Bearer ${token}` } });
             setQuizzes(data.quizzes);
         } catch (error) {
             console.error("Error fetching quizzes:", error);
@@ -58,10 +59,10 @@ function QuizManager() {
             };
 
             if (editingQuizId) {
-                await axios.put(`${serverUrl}/api/quiz/${editingQuizId}`, quizData, { withCredentials: true });
+                await axios.put(`${serverUrl}/api/quiz/${editingQuizId}`, quizData, { headers: { Authorization: `Bearer ${token}` } });
                 toast.success("Quiz updated successfully!");
             } else {
-                await axios.post(`${serverUrl}/api/quiz/create/${selectedCourse}`, quizData, { withCredentials: true });
+                await axios.post(`${serverUrl}/api/quiz/create/${selectedCourse}`, quizData, { headers: { Authorization: `Bearer ${token}` } });
                 toast.success("Quiz created successfully!");
             }
             
@@ -102,7 +103,7 @@ function QuizManager() {
         if (window.confirm("Are you sure you want to delete this quiz?")) {
             setLoading(true);
             try {
-                await axios.delete(`${serverUrl}/api/quiz/${quizId}`, { withCredentials: true });
+                await axios.delete(`${serverUrl}/api/quiz/${quizId}`, { headers: { Authorization: `Bearer ${token}` } });
                 toast.success("Quiz deleted successfully!");
                 fetchQuizzes(selectedCourse);
             } catch (error) {

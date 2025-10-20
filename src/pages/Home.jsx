@@ -12,6 +12,7 @@ import ai1 from '../assets/SearchAi.png'
 import ReviewPage from '../components/ReviewPage';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import AIChatbot from '../components/AIChatbot';
 function Home() {
       const navigate = useNavigate()
 
@@ -45,9 +46,9 @@ function Home() {
       <About/>
       <ReviewPage/>
       <Footer/>
-
       
-      
+      {/* AI Chatbot - Only on Home Page */}
+      <AIChatbot />
       
     </div>
 

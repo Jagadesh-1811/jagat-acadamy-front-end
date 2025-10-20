@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 import { FaArrowLeft } from "react-icons/fa"
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 import { serverUrl } from '../../App'
 import { toast } from 'react-toastify'
@@ -12,6 +12,7 @@ function CreateAssignment() {
     const { courseId } = useParams()
     const navigate = useNavigate()
     const dispatch = useDispatch()
+    const { token } = useSelector(state => state.user);
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
@@ -24,7 +25,7 @@ function CreateAssignment() {
         const { data } = await axios.post(
             serverUrl + `/api/assignment/create/${courseId}`,
             { title, description, referenceLink, deadline },
-            { withCredentials: true }
+            { headers: { Authorization: `Bearer ${token}` } }
         )
         toast.success("Assignment Created")
         navigate(`/createlecture/${courseId}`)

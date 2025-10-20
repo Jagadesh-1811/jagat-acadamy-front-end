@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom'
 import { ClipLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
-import { setUserData } from '../redux/userSlice'
+import { setUserData, setToken } from '../redux/userSlice'
 function SignUp() {
     const [name,setName]= useState("")
     const [email,setEmail]= useState("")
@@ -23,9 +23,10 @@ function SignUp() {
     const handleSignUp = async () => {
         setLoading(true)
         try {
-            const result = await axios.post(serverUrl + "/api/auth/signup" , {name , email , password , role} , {withCredentials:true} )
+            const result = await axios.post(serverUrl + "/api/auth/signup" , {name , email , password , role} )
             console.log("Axios post result:", result);
-            dispatch(setUserData(result.data))
+            dispatch(setUserData(result.data.user))
+            dispatch(setToken(result.data.token))
 
             navigate("/")
             toast.success("SignUp Successfully")

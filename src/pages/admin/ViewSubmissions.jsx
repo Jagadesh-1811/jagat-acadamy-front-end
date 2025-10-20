@@ -5,6 +5,7 @@ import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
 import { FaArrowLeftLong } from 'react-icons/fa6';
 import { ClipLoader } from 'react-spinners';
+import { useSelector } from 'react-redux';
 
 const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbackChange, onAssignGrade, submittingGrade }) => {
     const getGradeColor = (grade, isBackground = false) => {
@@ -67,6 +68,7 @@ const SubmissionCard = ({ submission, grades, feedback, onGradeChange, onFeedbac
 };
 
 function ViewSubmissions() {
+    const { token } = useSelector(state => state.user);
     const { courseId, assignmentId } = useParams();
     const navigate = useNavigate();
     const [submissions, setSubmissions] = useState([]);
@@ -78,7 +80,7 @@ function ViewSubmissions() {
     useEffect(() => {
         const fetchSubmissions = async () => {
             try {
-                const result = await axios.get(`${serverUrl}/api/submission/${assignmentId}`, { withCredentials: true });
+                const result = await axios.get(`${serverUrl}/api/submission/${assignmentId}`, { headers: { Authorization: `Bearer ${token}` } });
                 setSubmissions(result.data.submissions);
                 // Initialize grades and feedback states
                 const initialGrades = {};
@@ -99,7 +101,7 @@ function ViewSubmissions() {
             }
         };
         fetchSubmissions();
-    }, [assignmentId]);
+    }, [assignmentId, token]);
 
     const handleGradeChange = (submissionId, value) => {
         setGrades(prev => ({ ...prev, [submissionId]: value }));
@@ -124,7 +126,7 @@ function ViewSubmissions() {
             const result = await axios.post(
                 `${serverUrl}/api/grade/assign`,
                 { submissionId, grade: selectedGrade, feedback: selectedFeedback },
-                { withCredentials: true }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             toast.success(result.data.message);
             // Update the submission in state to reflect the new grade

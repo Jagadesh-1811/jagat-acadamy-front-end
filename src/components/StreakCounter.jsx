@@ -2,50 +2,61 @@ import React, { useState, useEffect } from 'react';
 import { FaFire } from 'react-icons/fa'; // Flame icon for streak
 
 const StreakCounter = ({
-  iconColor = 'orange-500',
+  iconColor = '#f97316',
   iconSize = '1.5em',
-  textColor = 'gray-800',
-  textSize = 'text-lg',
+  textColor = '#1f2937',
+  textSize = '1.125rem',
   className = '',
 }) => {
   const [streak, setStreak] = useState(0);
-  const [lastVisitDate, setLastVisitDate] = useState(null);
 
   useEffect(() => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to start of day UTC
+    const calculateStreak = () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    const storedStreak = localStorage.getItem('streakCount');
-    const storedLastVisit = localStorage.getItem('lastVisitDate');
+      const storedStreak = parseInt(localStorage.getItem('streakCount') || '0');
+      const storedLastVisit = localStorage.getItem('lastVisitDate');
+      let lastVisit = storedLastVisit ? new Date(storedLastVisit) : null;
 
-    let currentStreak = parseInt(storedStreak) || 0;
-    let lastVisit = storedLastVisit ? new Date(storedLastVisit) : null;
+      let currentStreak = storedStreak;
 
-    if (lastVisit) {
-      lastVisit.setHours(0, 0, 0, 0); // Normalize to start of day UTC
-      const diffTime = Math.abs(today.getTime() - lastVisit.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      if (lastVisit) {
+        lastVisit.setHours(0, 0, 0, 0);
+        const diffTime = today.getTime() - lastVisit.getTime();
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-      if (diffDays === 0) {
-        // Visited today already, no change to streak
-      } else if (diffDays === 1) {
-        // Visited on consecutive day
-        currentStreak += 1;
+        if (diffDays === 1) {
+          currentStreak += 1;
+          localStorage.setItem('streakCount', currentStreak.toString());
+          localStorage.setItem('lastVisitDate', today.toISOString());
+        } else if (diffDays > 1) {
+          currentStreak = 1;
+          localStorage.setItem('streakCount', currentStreak.toString());
+          localStorage.setItem('lastVisitDate', today.toISOString());
+        }
+        // If diffDays === 0, it's the same day, don't update
       } else {
-        // Missed a day, reset streak
         currentStreak = 1;
+        localStorage.setItem('streakCount', currentStreak.toString());
+        localStorage.setItem('lastVisitDate', today.toISOString());
       }
-    } else {
-      // First visit, start streak
-      currentStreak = 1;
-    }
 
-    setStreak(currentStreak);
-    setLastVisitDate(today.toISOString()); // Store as ISO string for consistency
+      setStreak(currentStreak);
+    };
 
-    localStorage.setItem('streakCount', currentStreak.toString());
-    localStorage.setItem('lastVisitDate', today.toISOString());
-  }, []); // Run only once on component mount
+    calculateStreak();
+  }, []);
+
+  useEffect(() => {
+    const handleLogout = () => {
+      clearStreak();
+      setStreak(0);
+    };
+
+    window.addEventListener('logout', handleLogout);
+    return () => window.removeEventListener('logout', handleLogout);
+  }, []);
 
   return (
     <div
@@ -56,12 +67,18 @@ const StreakCounter = ({
           : 'Start your daily streak!'
       }
     >
-      <FaFire className={`text-${iconColor}`} style={{ fontSize: iconSize }} />
-      <span className={`font-semibold text-${textColor} ${textSize}`}>
+      <FaFire style={{ fontSize: iconSize, color: iconColor }} />
+      <span style={{ color: textColor, fontSize: textSize }} className="font-semibold">
         {streak}
       </span>
     </div>
   );
+};
+
+// Export a helper function to clear streak on logout
+export const clearStreak = () => {
+  localStorage.removeItem('streakCount');
+  localStorage.removeItem('lastVisitDate');
 };
 
 export default StreakCounter;

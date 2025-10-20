@@ -13,13 +13,17 @@ function EnrolledCourse() {
   const navigate = useNavigate()
   const [averageGrade, setAverageGrade] = useState(null);
 
-  const { userData } = useSelector((state) => state.user);
+  const { userData, token } = useSelector((state) => state.user);
 
   useEffect(() => {
     const fetchAverageGrade = async () => {
       if (userData?._id) {
         try {
-          const result = await axios.get(`${serverUrl}/api/grade/average`, { withCredentials: true });
+          const result = await axios.get(`${serverUrl}/api/grade/average`, {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
           setAverageGrade(result.data.averageGrade);
         } catch (error) {
           console.error("Error fetching average grade:", error);
@@ -27,7 +31,7 @@ function EnrolledCourse() {
       }
     };
     fetchAverageGrade();
-  }, [userData?._id]);
+  }, [userData?._id, token]);
 
      
    

@@ -7,12 +7,12 @@ import { toast } from 'react-toastify'
 
 const getCreatorCourseData = () => {
     const dispatch = useDispatch()
-    const {userData} = useSelector(state=>state.user)
+    const {userData, token} = useSelector(state=>state.user)
 
     useEffect(()=>{
     const getCreatorData = async () => {
       try {
-        const result = await axios.get(serverUrl + "/api/course/getcreatorcourses" , {withCredentials:true})
+        const result = await axios.get(serverUrl + "/api/course/getcreatorcourses" , {headers: { Authorization: `Bearer ${token}` }})
         
          await dispatch(setCreatorCourseData(result.data))
 
@@ -28,7 +28,7 @@ const getCreatorCourseData = () => {
     if(userData){ // Only call if userData exists
       getCreatorData()
     }
-  },[userData])
+  },[userData, token])
 }
 
 export default getCreatorCourseData

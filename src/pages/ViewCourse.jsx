@@ -27,7 +27,7 @@ function ViewCourse() {
       const { courseId } = useParams();
       const navigate = useNavigate()
     const {courseData} = useSelector(state=>state.course)
-    const {userData} = useSelector(state=>state.user)
+    const {userData, token} = useSelector(state=>state.user)
     const [creatorData , setCreatorData] = useState(null)
     const dispatch = useDispatch()
     const [selectedLecture, setSelectedLecture] = useState(null);
@@ -54,7 +54,7 @@ function ViewCourse() {
         const { data } = await axios.post(
             `${serverUrl}/api/submission/submit`,
             { assignmentId, submissionLink },
-            { withCredentials: true }
+            { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success(data.message);
     } catch (error) {
@@ -74,7 +74,7 @@ function ViewCourse() {
       return;
     }
     try {
-      const result = await axios.post(serverUrl + "/api/review/givereview" , {rating , comment , courseId} , {withCredentials:true})
+      const result = await axios.post(serverUrl + "/api/review/givereview" , {rating , comment , courseId} , { headers: { Authorization: `Bearer ${token}` } })
       toast.success("Review Added")
       console.log(result.data)
       setRating(0)
@@ -133,7 +133,7 @@ console.log("Average Rating:", avgRating);
     const fetchStudentGrades = async () => {
       if (userData?._id && courseId) {
         try {
-          const result = await axios.get(`${serverUrl}/api/grade/student`, { withCredentials: true });
+          const result = await axios.get(`${serverUrl}/api/grade/student`, { headers: { Authorization: `Bearer ${token}` } });
           // Filter grades for the current course
           const gradesForCurrentCourse = result.data.grades.filter(grade => 
             grade.submission?.assignment?.course?._id === courseId
@@ -150,7 +150,7 @@ console.log("Average Rating:", avgRating);
       if (isEnrolled) {
         try {
           setFetchingMaterials(true);
-          const response = await axios.get(`${serverUrl}/api/material/course/${courseId}/materials`, { withCredentials: true });
+          const response = await axios.get(`${serverUrl}/api/material/course/${courseId}/materials`, { headers: { Authorization: `Bearer ${token}` } });
           setCourseMaterials(response.data);
         } catch (error) {
           console.error("Error fetching course materials:", error);
@@ -164,7 +164,7 @@ console.log("Average Rating:", avgRating);
     const fetchCourseQuizzes = async () => {
       if (isEnrolled) { // Only fetch quizzes if enrolled
         try {
-          const response = await axios.get(`${serverUrl}/api/quiz/course/${courseId}`, { withCredentials: true });
+          const response = await axios.get(`${serverUrl}/api/quiz/course/${courseId}`, { headers: { Authorization: `Bearer ${token}` } });
           setCourseQuizzes(response.data.quizzes);
         } catch (error) {
           console.error("Error fetching course quizzes:", error);
@@ -176,8 +176,8 @@ console.log("Average Rating:", avgRating);
     const fetchDoubtSession = async () => {
       if (isEnrolled) { // Only fetch doubt session if enrolled
         try {
-          const response = await axios.get(`${serverUrl}/api/doubt-session/course/${courseId}`, { withCredentials: true });
-          setDoubtSession(response.data.doubtSession);
+          const response = await axios.get(`${serverUrl}/api/doubt-session/doubt-session/${courseId}`, { headers: { Authorization: `Bearer ${token}` } });
+          setDoubtSession(response.data[0]);
         } catch (error) {
           console.error("Error fetching doubt session:", error);
           // Don't show toast for 404, as it means no session is set yet
@@ -192,7 +192,7 @@ console.log("Average Rating:", avgRating);
     fetchCourseMaterials();
     fetchCourseQuizzes();
     fetchDoubtSession();
-  }, [courseId, userData?._id, isEnrolled]);
+  }, [courseId, userData?._id, isEnrolled, token]);
 
 
     // Fetch creator info once course data is available
@@ -203,7 +203,7 @@ console.log("Average Rating:", avgRating);
           const result = await axios.post(
             `${serverUrl}/api/course/getcreator`,
             { userId: selectedCourseData.creator },
-            { withCredentials: true }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           setCreatorData(result.data);
           console.log(result.data)
@@ -216,7 +216,7 @@ console.log("Average Rating:", avgRating);
     getCreator();
 
     
-  }, [selectedCourseData]);
+  }, [selectedCourseData, token]);
 
 
    
@@ -244,7 +244,7 @@ const handleEnroll = async (courseId, userId) => {
     const orderData = await axios.post(serverUrl + "/api/payment/create-order", {
       courseId,
       userId
-    } , {withCredentials:true});
+    } , { headers: { Authorization: `Bearer ${token}` } });
     console.log(orderData)
 
     const options = {
@@ -261,12 +261,12 @@ const handleEnroll = async (courseId, userId) => {
   ...response,       
   courseId,
   userId
-}, { withCredentials: true });
+}, { headers: { Authorization: `Bearer ${token}` } });
     
 setIsEnrolled(true)
     toast.success(verifyRes.data.message);
     // Re-fetch user data to update enrolledCourses in Redux store
-    const updatedUserResult = await axios.get(serverUrl + "/api/user/currentuser" , {withCredentials:true})
+    const updatedUserResult = await axios.get(serverUrl + "/api/user/currentuser" , { headers: { Authorization: `Bearer ${token}` } })
     dispatch(setUserData(updatedUserResult.data))
   } catch (verifyError) {
     toast.error("Payment verification failed.");
@@ -336,6 +336,11 @@ setIsEnrolled(true)
                    Watch Now
                   </button>
                   }
+                  {isEnrolled && doubtSession && (
+                    <a href={doubtSession.meetingLink} target="_blank" rel="noopener noreferrer" className="bg-purple-500 text-white px-6 py-2 rounded hover:bg-purple-700 mt-3 ml-2">
+                        Doubt Solving Session
+                    </a>
+                  )}
                   </div>
                 </div>
 

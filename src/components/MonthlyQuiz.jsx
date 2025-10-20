@@ -5,7 +5,7 @@ import { serverUrl } from '../App';
 
 
 const MonthlyQuiz = () => {
-    const { userData } = useSelector((state) => state.user);
+    const { userData, token } = useSelector((state) => state.user);
     const [quiz, setQuiz] = useState(null);
     const [timeRemaining, setTimeRemaining] = useState(0);
     const [isQuizActive, setIsQuizActive] = useState(false);
@@ -35,7 +35,11 @@ const MonthlyQuiz = () => {
 
                     for (const course of userData.enrolledCourses) {
                         try {
-                            const { data } = await axios.get(`${serverUrl}/api/quiz/course/${course._id}`, { withCredentials: true });
+                            const { data } = await axios.get(`${serverUrl}/api/quiz/course/${course._id}`, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            });
                             
                             const courseMonthlyQuiz = data.quizzes.find(q => {
                                 const quizScheduleDate = new Date(q.schedule);

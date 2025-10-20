@@ -33,11 +33,12 @@ function AddCourses() {
    const [fetchingMaterials, setFetchingMaterials] = useState(true);
    const dispatch = useDispatch()
    const {courseData} = useSelector(state=>state.course)
+   const { token } = useSelector(state => state.user);
 
 
     const getCourseById = async () => {
       try {
-        const result = await axios.get(serverUrl + `/api/course/getcourse/${courseId}` , {withCredentials:true})
+        const result = await axios.get(serverUrl + `/api/course/getcourse/${courseId}` , { headers: { Authorization: `Bearer ${token}` } })
           setSelectedCourse(result.data)
           console.log(result)
         
@@ -50,7 +51,7 @@ function AddCourses() {
     const fetchCourseMaterials = async () => {
       try {
         setFetchingMaterials(true);
-        const response = await axios.get(`${serverUrl}/api/material/course/${courseId}/materials`, { withCredentials: true });
+        const response = await axios.get(`${serverUrl}/api/material/course/${courseId}/materials`, { headers: { Authorization: `Bearer ${token}` } });
         setCourseMaterials(response.data);
       } catch (error) {
         console.error("Error fetching course materials:", error);
@@ -79,7 +80,7 @@ function AddCourses() {
       getCourseById()
       fetchCourseMaterials();
 
-    },[courseId])
+    },[courseId, token])
       const handleThumbnail = (e)=>{
         const file = e.target.files[0]
         setBackendImage(file)
@@ -102,7 +103,7 @@ function AddCourses() {
               const response = await axios.post(
                   `${serverUrl}/api/material/course/${courseId}/materials`,
                   formData,
-                  { withCredentials: true } // let axios set Content-Type with proper boundary
+                  { headers: { Authorization: `Bearer ${token}` } } // let axios set Content-Type with proper boundary
               );
               toast.success("Material uploaded successfully!");
               const uploaded = response.data?.material || response.data;
@@ -130,7 +131,7 @@ function AddCourses() {
               return;
           }
           try {
-              await axios.delete(`${serverUrl}/api/material/materials/${materialId}`, { withCredentials: true });
+              await axios.delete(`${serverUrl}/api/material/materials/${materialId}`, { headers: { Authorization: `Bearer ${token}` } });
               toast.success("Material deleted successfully!");
               setCourseMaterials((prev) => prev.filter((material) => material._id !== materialId));
           } catch (error) {
@@ -154,7 +155,7 @@ const editCourseHandler = async () => {
     const result = await axios.post(
       `${serverUrl}/api/course/editcourse/${courseId}`,
       formData,
-      { withCredentials: true }
+      { headers: { Authorization: `Bearer ${token}` } }
     );
 
     const updatedCourse = result.data;
@@ -185,7 +186,7 @@ const editCourseHandler = async () => {
   const removeCourse = async () => {
     setLoading(true)
     try {
-      const result = await axios.delete(serverUrl + `/api/course/removecourse/${courseId}` , {withCredentials:true})
+      const result = await axios.delete(serverUrl + `/api/course/removecourse/${courseId}` , { headers: { Authorization: `Bearer ${token}` } })
       toast.success("Course Deleted")
        const filteredCourses = courseData.filter(c => c._id !== courseId);
       dispatch(setCourseData(filteredCourses));

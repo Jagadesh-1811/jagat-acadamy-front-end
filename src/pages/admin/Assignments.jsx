@@ -6,17 +6,19 @@ import { toast } from 'react-toastify';
 import { FaArrowLeftLong, FaEye } from 'react-icons/fa6';
 import { MdEdit } from 'react-icons/md';
 import { ClipLoader } from 'react-spinners';
+import { useSelector } from 'react-redux';
 
 function Assignments() {
     const { courseId } = useParams();
     const navigate = useNavigate();
+    const { token } = useSelector(state => state.user);
     const [assignments, setAssignments] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const fetchAssignments = async () => {
             try {
-                const result = await axios.get(`${serverUrl}/api/assignment/course/${courseId}`, { withCredentials: true });
+                const result = await axios.get(`${serverUrl}/api/assignment/course/${courseId}`, { headers: { Authorization: `Bearer ${token}` } });
                 setAssignments(result.data.assignments);
             } catch (error) {
                 console.error("Error fetching assignments:", error);
@@ -26,7 +28,7 @@ function Assignments() {
             }
         };
         fetchAssignments();
-    }, [courseId]);
+    }, [courseId, token]);
 
     if (loading) {
         return (

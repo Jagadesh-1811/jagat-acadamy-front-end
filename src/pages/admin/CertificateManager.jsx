@@ -3,20 +3,22 @@ import axios from 'axios';
 import { serverUrl } from '../../App'; // Assuming serverUrl is defined here
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
+import { useSelector } from 'react-redux';
 
 function CertificateManager() {
+    const { token } = useSelector(state => state.user);
     const [certificationLink, setCertificationLink] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         fetchCertificationLink();
-    }, []);
+    }, [token]);
 
     const fetchCertificationLink = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${serverUrl}/api/certification/link`, { withCredentials: true });
+            const response = await axios.get(`${serverUrl}/api/certification/link`, { headers: { Authorization: `Bearer ${token}` } });
             setCertificationLink(response.data.link);
         } catch (error) {
             console.error('Error fetching certification link:', error);
@@ -38,7 +40,7 @@ function CertificateManager() {
             const response = await axios.post(
                 `${serverUrl}/api/certification/manage`,
                 { link: certificationLink },
-                { withCredentials: true }
+                { headers: { Authorization: `Bearer ${token}` } }
             );
             toast.success(response.data.message);
         } catch (error) {

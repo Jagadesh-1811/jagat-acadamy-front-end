@@ -25,7 +25,7 @@ const getGradeColor = (grade, isBackground = false) => {
 
 function Dashboard() {
   const navigate = useNavigate()
-  const { userData } = useSelector((state) => state.user);
+  const { userData, token } = useSelector((state) => state.user);
   const { creatorCourseData } = useSelector((state) => state.course);
   const [submissions, setSubmissions] = useState({});
   const [grades, setGrades] = useState({}); // State to hold grades for each submission
@@ -64,12 +64,12 @@ function Dashboard() {
           const result = await axios.post(
               `${serverUrl}/api/grade/assign`,
               { submissionId, assignmentId, grade: selectedGrade, feedback: selectedFeedback || "" },
-              { withCredentials: true }
+              { headers: { Authorization: `Bearer ${token}` } }
           );
           // Refetch submissions for the assignment to get updated grade
           const { data } = await axios.get(
               `${serverUrl}/api/submission/${assignmentId}`,
-              { withCredentials: true }
+              { headers: { Authorization: `Bearer ${token}` } }
           );
           setSubmissions(prevSubmissions => ({
               ...prevSubmissions,
@@ -92,11 +92,13 @@ function Dashboard() {
               for (const course of creatorCourseData) {
                   if (course.assignments) { // Ensure assignments exist
                       for (const assignment of course.assignments) {
-                          const { data } = await axios.get(
-                              `${serverUrl}/api/submission/${assignment._id}`,
-                              { withCredentials: true }
-                          );
-                          newSubmissions[assignment._id] = data.submissions;
+                          if (assignment && assignment._id) { // Check if assignment and assignment._id are not null/undefined
+                            const { data } = await axios.get(
+                                `${serverUrl}/api/submission/${assignment._id}`,
+                                { headers: { Authorization: `Bearer ${token}` } }
+                            );
+                            newSubmissions[assignment._id] = data.submissions;
+                          }
                       }
                   }
               }
@@ -111,7 +113,7 @@ function Dashboard() {
       if (creatorCourseData) {
           fetchSubmissions();
       }
-    }, [creatorCourseData]);
+    }, [creatorCourseData, token]);
 
   // update based on your store
 
