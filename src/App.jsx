@@ -30,7 +30,7 @@ import StudentDashboard from './pages/Dashboard.jsx'
 import CertificateManager from './pages/admin/CertificateManager'
 import CreateDoubtSession from './pages/admin/CreateDoubtSession';
 
-export const serverUrl = "https://jagat-acadamy-api.vercel.app/api"
+export const serverUrl = "http://localhost:8000"
 
 function App() {
   
