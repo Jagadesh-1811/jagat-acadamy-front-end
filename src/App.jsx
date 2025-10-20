@@ -26,11 +26,11 @@ import EnrolledCourse from './pages/EnrolledCourse'
 import ViewLecture from './pages/ViewLecture'
 import SearchWithAi from './pages/SearchWithAi'
 import getAllReviews from './customHooks/getAllReviews'
-import StudentDashboard from './pages/dashboard'
+import StudentDashboard from './pages/Dashboard.jsx'
 import CertificateManager from './pages/admin/CertificateManager'
 import CreateDoubtSession from './pages/admin/CreateDoubtSession';
 
-export const serverUrl = "http://localhost:8000"
+export const serverUrl = "https://jagat-acadamy-api.vercel.app/api"
 
 function App() {
   
